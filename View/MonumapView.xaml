@@ -1,0 +1,167 @@
+﻿<Window x:Class="MonumapCreator.View.MapView"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:cs="http://schemas.microsoft.com/xaml/behaviors"
+Title="MainWindow" Height="720" Width="1280" MinHeight="200">
+    <Window.Resources>
+        <ContextMenu x:Key="removeNodeMenu">
+            <MenuItem Header="Delete Node" Command="{Binding RemoveNode}"/>
+            <Separator />
+        </ContextMenu>
+        <ContextMenu x:Key="removeEdgeMenu">
+            <MenuItem Header="Delete Node" Command="{Binding RemoveEdge}"/>
+            <Separator />
+        </ContextMenu>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80px" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column ="0" Height="50" Width="100" Command="{Binding RemoveFloor}" Content="RemoveFloor" Margin="10,10,10,10"></Button>
+            <Button Grid.Column ="1" Height="50" Width="100" Command="{Binding AddFloor}" Content="Add Floor" Margin="10,10,10,10"></Button>
+            <ComboBox Grid.Column ="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="100" Height="40" x:Name="boxes" Margin="10,10,10,10" ItemsSource="{Binding Floors, Mode=OneWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFloor}" MaxDropDownHeight="100"/>
+            <Rectangle Grid.Column="3" VerticalAlignment="Stretch" Width="1" Margin="0,10,0,10" Stroke="Gray" />
+            <ToggleButton Grid.Column ="4" Height="50" Width="100" IsChecked="{Binding DrawNodes}" Content="Draw Nodes" Margin="10,10,10,10"></ToggleButton>
+            <ToggleButton Grid.Column ="5" Height="50" Width="100" IsChecked="{Binding DrawEdges}" Content="Draw Edges" Margin="10,10,10,10"></ToggleButton>
+            <ToggleButton Grid.Column ="6" Height="50" Width="100" IsChecked="{Binding DrawScale}" Content="Draw Scale" Margin="10,10,10,10"></ToggleButton>
+            <Button Grid.Column ="7" Height="50" Width="100" Command="{Binding ExportToJson}" Content="Export To JSON" Margin="10,10,10,10"></Button>
+        </Grid>
+        <ScrollViewer Grid.Row="1" Height="auto" HorizontalAlignment="Left" Width="967">
+            <Canvas Grid.Row="2" Grid.Column="1" x:Name="Canvas" Background="AliceBlue" IsEnabled="{Binding CanvasEnabled}">
+                <Grid Width="{Binding ActualWidth, ElementName=Canvas}" Height="{Binding ActualHeight, ElementName=Canvas}">
+                    <Image x:Name="Image" Source="{Binding CanvasImage}" Width="{Binding ImageWidth}" Opacity="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Canvas>
+        </ScrollViewer>
+        <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height = "Auto"/>
+                <RowDefinition Height = "10"/>
+                <RowDefinition Height = "Auto"/>
+                <RowDefinition Height = "10"/>
+                <RowDefinition Height = "Auto"/>
+                <RowDefinition Height = "Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="NodeID" Grid.Row="0" Grid.Column="1" DataContext="{Binding SelectedNode}" Content="{Binding ID}"></Label>
+                <Label x:Name="AvoidingFocus" Grid.Row="1" Grid.Column="0">Node Name</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedNode}" Text="{Binding Path=Name, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+
+                <Label Grid.Row="2" Grid.Column="0">Beacon ID</Label>
+                <TextBox Grid.Row="2" Grid.Column="1" DataContext="{Binding SelectedNode}" Text="{Binding Path=BeaconID, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+
+                <Label Grid.Row="3" Grid.Column="0">Attributes</Label>
+                <Grid Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" DataContext="{Binding SelectedNode}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <CheckBox Grid.Column="0" Content="Classroom" IsChecked="{Binding ClassroomChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                    <CheckBox Grid.Column="1" Content="Hallway" IsChecked="{Binding HallwayChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                    <CheckBox Grid.Column="0" Grid.Row="1" Content="Entrance" IsChecked="{Binding EntranceChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                </Grid>
+
+                <Label Grid.Row="4" Grid.Column="0">BeaconID</Label>
+                <TextBox Grid.Row="4" Grid.Column="1" DataContext="{Binding SelectedNode}" Text="{Binding Path=BeaconID, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+                <Label Grid.Row="5" Grid.Column="0">Location</Label>
+                <Label Grid.Row="5" Grid.Column="1" DataContext="{Binding SelectedNode}" Content="{Binding LocationText}"/>
+                <Label Grid.Row="6" Grid.Column="0" Content="Add Edge"/>
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding AddEdgeContext}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+
+            </Grid>
+            <Separator Grid.Row="1" Grid.Column="0" Height="10"/>
+            <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" >
+                <Grid Margin="0,10,0,-10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="200" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" DataContext="{Binding SelectedEdge}" Content="Edge"/> 
+                    <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding AllEdges}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEdge}" />
+                    <Label Grid.Row="1" Grid.Column="0">Distance</Label>
+                    <TextBox Grid.Row="1" Grid.Column="1" DataContext="{Binding SelectedEdge}" Text="{Binding Path=Distance, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+
+                    <Label Grid.Row="2" Grid.Column="0">Attributes</Label>
+                    <Grid Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" DataContext="{Binding SelectedEdge}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <!--STAIRS, ELEVATOR, HALLWAY, DOORWAY -->
+                        <CheckBox Grid.Column="0" Grid.Row="0" Content="Stairs" IsChecked="{Binding StairsChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                        <CheckBox Grid.Column="1" Grid.Row="0" Content="Hallway" IsChecked="{Binding HallwayChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                        <CheckBox Grid.Column="0" Grid.Row="1" Content="Elevator" IsChecked="{Binding ElevatorChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                        <CheckBox Grid.Column="1" Grid.Row="1" Content="Doorway" IsChecked="{Binding DoorwayChecked, Mode=TwoWay}" Margin="0,0,5,0"/>
+                    </Grid>
+                    <Button Grid.Column ="1" Grid.Row="3" Height="30" Width="100" Command="{Binding RemoveEdge}" Content="Remove Edge" Margin="10,10,10,10"></Button>
+                </Grid>
+            </Grid>
+            <Separator Grid.Row="3" Grid.Column="0" Height="10"/>
+            <Grid Grid.Row="4" Grid.Column="0" DataContext="{Binding SelectedFloor}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0">Floor Name</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Name, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+                <Label Grid.Row="1" Grid.Column="0">Floor Number</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FloorNum, Mode=TwoWay}" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+            </Grid>
+        </Grid>
+
+    </Grid>
+
+</Window>
